@@ -5,9 +5,10 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     healthCheckPath: /health
+    # No ANTHROPIC_API_KEY here: bring-your-own-key by default. Callers of any
+    # Claude-backed endpoint supply their own key in the X-Anthropic-Api-Key
+    # header (see app/api/deps.py); this service holds no key of its own.
     envVars:
-      - key: ANTHROPIC_API_KEY
-        sync: false
       - key: NEO4J_URI
         sync: false
       - key: NEO4J_USER

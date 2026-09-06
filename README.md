@@ -76,14 +76,32 @@ component holding long-running local state beyond the graph itself.
 
 - **Graph store**: [Neo4j Aura Free](https://neo4j.com/cloud/aura-free/) (managed, no ops). A single bounded GDELT day is ~65k events / ~1.5k actors (see the Phase 5 backtest above) and comfortably fits the free tier; a multi-week backfill likely won't -- size your ingestion window to whatever tier you're on.
 - **API**: containerized via the included `Dockerfile` (built and smoke-tested against the local Neo4j during development). Deployable to Render, Fly.io, or any container host. `render.yaml` is a ready-to-use [Render Blueprint](https://render.com/docs/blueprint-spec) defining the web service plus a cron-scheduled ingestion job -- check Render's current plan/pricing pages before relying on the exact `plan:`/cron-availability details, since those change independently of this repo.
-- **Ingestion**: `scripts/schedule_ingest.py` pulls whatever is the latest *completed* 15-minute GDELT window and is idempotent (every write is a Cypher `MERGE`, so re-running it is safe) -- run it on a schedule (Render Cron, a GitHub Actions scheduled workflow, plain crontab) rather than inline in the API process.
-- **Secrets**: `ANTHROPIC_API_KEY`, `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD` are read from the environment only -- set them as platform secrets and never commit `.env` (it's gitignored; only `.env.example` is tracked).
+- **Ingestion**: `scripts/schedule_ingest.py` pulls whatever is the latest *completed* 15-minute GDELT window and is idempotent (every write is a Cypher `MERGE`, so re-running it is safe) -- run it on a schedule (Render Cron, a GitHub Actions scheduled workflow, plain crontab) rather than inline in the API process. It doesn't call Claude, so it only needs the `NEO4J_*` secrets.
+- **Secrets**: `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD` are read from the environment and set as platform secrets; never commit `.env` (it's gitignored -- only `.env.example` is tracked).
 
-**Before exposing this publicly**, be aware none of the API routes have
-authentication or rate limiting yet, and the entity-resolution / brief-generation
-endpoints spend real Claude API credit per call. Add both, or gate those
-specific routes, before a public deploy -- otherwise anyone hitting the API
-spends your API budget.
+### Bring your own Anthropic key
+
+The hosted API holds **no Anthropic API key of its own**. Any endpoint that
+calls Claude requires the *caller* to supply their own key in an
+`X-Anthropic-Api-Key` request header (enforced by `require_anthropic_api_key`
+in `app/api/deps.py`, which returns 401 if it's missing) -- a fresh
+`ClaudeClient` is built from that header per request and closed when the
+request finishes. This is deliberate: it means hosting this publicly never
+puts the operator's own Claude spend at the mercy of other people's traffic,
+and there is no `ANTHROPIC_API_KEY` for the web service in `render.yaml`.
+
+This applies to the *public HTTP surface* only. Operator-run scripts
+(`scripts/resolve_entities.py`, and any future scripts you run directly
+against your own deployment) still read `ANTHROPIC_API_KEY` from your local
+`.env` or shell environment, same as any other CLI tool -- BYOK is about
+callers of your hosted API, not about you running your own maintenance jobs.
+
+**Before exposing the API publicly**, note that BYOK solves the *cost*
+problem but not the *abuse* problem: there is still no rate limiting, so
+someone could hammer the API with their own key and run up their own bill
+(their problem) or hit Neo4j hard enough to degrade service for everyone
+else (your problem). Add rate limiting before a public deploy if that risk
+matters to you.
 
 ## License
 

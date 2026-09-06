@@ -12,7 +12,7 @@ Treat this as a rebuild from scratch. There is no existing codebase to preserve;
 - **Graph store**: Neo4j holds actors, events, and locations as nodes, with event timestamps as node properties (not relationship versioning) so temporal range queries stay simple. All Cypher access goes through a thin client module — no raw query strings scattered through the app.
 - **API layer**: FastAPI exposes read endpoints over the graph, a forecasting endpoint, and a brief-generation endpoint. All request/response schemas are pydantic models.
 - **Forecasting module**: derives graph-based features per actor or actor-pair (recent event frequency, average Goldstein scale, tone trend, degree/centrality in the recent-interaction subgraph) and feeds them into a simple, explainable baseline model (start with logistic regression or gradient-boosted trees — not a deep model; the interesting question here is whether graph structure carries signal at all, and a simple model makes that legible).
-- **LLM enrichment layer**: a dedicated module wraps all Claude API calls (entity disambiguation, subgraph-to-narrative summarization, forecast brief generation). LLM calls are batched and cached; never call the API per-event in a loop.
+- **LLM enrichment layer**: a dedicated module wraps all Claude API calls (entity disambiguation, subgraph-to-narrative summarization, forecast brief generation). LLM calls are batched and cached; never call the API per-event in a loop. The hosted API is bring-your-own-key by default: it holds no Anthropic key of its own, and any endpoint that calls Claude requires the caller's own key via the `X-Anthropic-Api-Key` header (see `app/api/deps.py`), so publicly hosting this never spends the operator's own API budget on other people's traffic. Operator-run scripts (e.g. `resolve_entities.py`) are exempt from this — they read `ANTHROPIC_API_KEY` from the environment directly, since they're run by whoever operates the deployment, not by arbitrary callers.
 
 ## Graph schema
 
@@ -69,7 +69,7 @@ temporal-kg-engine/
 
 ## Environment and setup
 
-Required environment variables: `ANTHROPIC_API_KEY`, `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`, `GDELT_DATA_DIR` (local cache path for downloaded GDELT files). `docker-compose.yml` should bring up a local Neo4j instance for development. Use `uvicorn app.main:app --reload` for local API development and a separate scheduled script (`scripts/schedule_ingest.py`) for ingestion — do not run ingestion inline inside API request handlers.
+Required environment variables: `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`, `GDELT_DATA_DIR` (local cache path for downloaded GDELT files). `ANTHROPIC_API_KEY` is optional and only used by operator-run scripts that call Claude directly (e.g. `resolve_entities.py`) — the API itself never reads it; see the bring-your-own-key note above. `docker-compose.yml` should bring up a local Neo4j instance for development. Use `uvicorn app.main:app --reload` for local API development and a separate scheduled script (`scripts/schedule_ingest.py`) for ingestion — do not run ingestion inline inside API request handlers.
 
 ## Development commands
 
