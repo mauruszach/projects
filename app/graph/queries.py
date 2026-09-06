@@ -57,15 +57,13 @@ RETURN a.code AS code, a.name AS name, a.type AS actor_type
 # with its counterpart actor (if any) and location (if any).
 _ACTOR_EVENTS = """
 MATCH (a:Actor {code: $code})
-CALL {
-  WITH a
+CALL (a) {
   MATCH (a)-[:INITIATED]->(e:Event)
   WHERE ($start IS NULL OR e.timestamp >= $start) AND ($end IS NULL OR e.timestamp <= $end)
   OPTIONAL MATCH (e)-[:TARGETED]->(counterpart:Actor)
   OPTIONAL MATCH (e)-[:OCCURRED_AT]->(l:Location)
   RETURN e AS event, 'initiated' AS role, counterpart AS counterpart, l AS location
   UNION
-  WITH a
   MATCH (e:Event)-[:TARGETED]->(a)
   WHERE ($start IS NULL OR e.timestamp >= $start) AND ($end IS NULL OR e.timestamp <= $end)
   OPTIONAL MATCH (source:Actor)-[:INITIATED]->(e)
@@ -98,6 +96,23 @@ RETURN e.event_id AS event_id, e.event_code AS event_code, e.goldstein_scale AS 
        l.name AS location_name, l.lat AS location_lat, l.long AS location_long
 ORDER BY e.timestamp DESC
 LIMIT $limit
+"""
+
+_ACTIVE_ACTORS = """
+MATCH (a:Actor)
+CALL (a) {
+  MATCH (a)-[:INITIATED]->(e:Event)
+  WHERE e.timestamp >= $start AND e.timestamp < $end
+  RETURN e
+  UNION
+  MATCH (e:Event)-[:TARGETED]->(a)
+  WHERE e.timestamp >= $start AND e.timestamp < $end
+  RETURN e
+}
+WITH a, count(e) AS event_count
+WHERE event_count >= $min_events
+RETURN a.code AS code, event_count
+ORDER BY event_count DESC
 """
 
 _GET_EVENT = """
@@ -199,3 +214,9 @@ async def mark_actors_resolved(client: Neo4jClient, codes: list[str], resolved_a
 
 async def link_same_as(client: Neo4jClient, links: list[dict]) -> None:
     await client.execute_write(_LINK_SAME_AS, links=links)
+
+
+async def get_active_actors(
+    client: Neo4jClient, start: datetime, end: datetime, min_events: int
+) -> list[dict]:
+    return await client.execute_read(_ACTIVE_ACTORS, start=start, end=end, min_events=min_events)
