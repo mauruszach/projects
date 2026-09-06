@@ -20,6 +20,7 @@ pytest                          # run tests
 python scripts/backfill_gdelt.py --start 2024-01-01 --end 2024-01-31   # backfill GDELT
 python scripts/resolve_entities.py                                     # resolve ambiguous actor codes
 python scripts/train_forecast_baseline.py --day 2026-09-05              # backtest the forecasting baseline
+python scripts/schedule_ingest.py                                       # ingest the latest completed 15-min GDELT window
 ```
 
 ## Status
@@ -66,3 +67,24 @@ Goldstein/tone-derived features; that question needs more data and is squarely
 Phase 7's job. The dev Neo4j instance is left empty between sessions (see
 Development below) -- this backtest's data was loaded, measured, and cleared.
 Remaining phases tracked in `CLAUDE.md`.
+
+## Deployment
+
+Designed to run as three independently hostable pieces -- a managed graph
+store, a stateless API container, and a scheduled ingestion job -- with no
+component holding long-running local state beyond the graph itself.
+
+- **Graph store**: [Neo4j Aura Free](https://neo4j.com/cloud/aura-free/) (managed, no ops). A single bounded GDELT day is ~65k events / ~1.5k actors (see the Phase 5 backtest above) and comfortably fits the free tier; a multi-week backfill likely won't -- size your ingestion window to whatever tier you're on.
+- **API**: containerized via the included `Dockerfile` (built and smoke-tested against the local Neo4j during development). Deployable to Render, Fly.io, or any container host. `render.yaml` is a ready-to-use [Render Blueprint](https://render.com/docs/blueprint-spec) defining the web service plus a cron-scheduled ingestion job -- check Render's current plan/pricing pages before relying on the exact `plan:`/cron-availability details, since those change independently of this repo.
+- **Ingestion**: `scripts/schedule_ingest.py` pulls whatever is the latest *completed* 15-minute GDELT window and is idempotent (every write is a Cypher `MERGE`, so re-running it is safe) -- run it on a schedule (Render Cron, a GitHub Actions scheduled workflow, plain crontab) rather than inline in the API process.
+- **Secrets**: `ANTHROPIC_API_KEY`, `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD` are read from the environment only -- set them as platform secrets and never commit `.env` (it's gitignored; only `.env.example` is tracked).
+
+**Before exposing this publicly**, be aware none of the API routes have
+authentication or rate limiting yet, and the entity-resolution / brief-generation
+endpoints spend real Claude API credit per call. Add both, or gate those
+specific routes, before a public deploy -- otherwise anyone hitting the API
+spends your API budget.
+
+## License
+
+MIT -- see [LICENSE](LICENSE). Contributions welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
