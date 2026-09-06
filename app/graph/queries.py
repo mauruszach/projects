@@ -112,6 +112,26 @@ RETURN e.event_id AS event_id, e.event_code AS event_code, e.goldstein_scale AS 
        l.name AS location_name, l.lat AS location_lat, l.long AS location_long
 """
 
+_GET_UNRESOLVED_ACTORS = """
+MATCH (a:Actor)
+WHERE a.resolved_at IS NULL
+RETURN a.code AS code, a.name AS name
+"""
+
+_MARK_ACTORS_RESOLVED = """
+UNWIND $codes AS code
+MATCH (a:Actor {code: code})
+SET a.resolved_at = $resolved_at
+"""
+
+_LINK_SAME_AS = """
+UNWIND $links AS link
+MATCH (a:Actor {code: link.code})
+MATCH (canonical:Actor {code: link.canonical_code})
+MERGE (a)-[r:SAME_AS]->(canonical)
+SET r.confidence = link.confidence, r.rationale = link.rationale
+"""
+
 
 async def upsert_actors(client: Neo4jClient, actors: list[dict]) -> None:
     await client.execute_write(_UPSERT_ACTORS, actors=actors)
@@ -167,3 +187,15 @@ async def list_events(
 async def get_event(client: Neo4jClient, event_id: str) -> dict | None:
     rows = await client.execute_read(_GET_EVENT, event_id=event_id)
     return rows[0] if rows else None
+
+
+async def get_unresolved_actors(client: Neo4jClient) -> list[dict]:
+    return await client.execute_read(_GET_UNRESOLVED_ACTORS)
+
+
+async def mark_actors_resolved(client: Neo4jClient, codes: list[str], resolved_at: datetime) -> None:
+    await client.execute_write(_MARK_ACTORS_RESOLVED, codes=codes, resolved_at=resolved_at)
+
+
+async def link_same_as(client: Neo4jClient, links: list[dict]) -> None:
+    await client.execute_write(_LINK_SAME_AS, links=links)
