@@ -25,4 +25,7 @@ python scripts/backfill_gdelt.py --start 2024-01-01 --end 2024-01-31   # backfil
 Phase 1 complete: repo scaffold, Neo4j via docker-compose, FastAPI health check.
 Phase 2 complete: GDELT 2.0 ingestion (download, cache, parse CAMEO rows, batch-load
 into Neo4j via `scripts/backfill_gdelt.py`), verified against live GDELT data.
+Phase 3 complete: graph API — actor detail, actor timeline and ego-network subgraph
+(both with `start`/`end` temporal filters), and event listing/lookup with
+`event_code` filtering. See `/docs` for the OpenAPI UI once the server is running.
 Remaining phases tracked in `CLAUDE.md`.
