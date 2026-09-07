@@ -26,13 +26,13 @@ Work in this order: (1) state 2-4 plausible next actions available to each actor
 Never claim certainty, never describe this as a forecast or prediction, and never invent a source URL. Every step is hypothetical by construction.`;
 
 function historySummary(event){
- return {event_id:event.event_id,event_code:event.event_code,goldstein_scale:event.goldstein_scale,timestamp:event.timestamp,actor1:event.actor1?.code||null,actor2:event.actor2?.code||null};
+ return {event_id:event.event_id,provenance:event.provenance||'unknown',event_code:event.event_code,goldstein_scale:event.goldstein_scale,timestamp:event.timestamp,actor1:event.actor1?.code||null,actor2:event.actor2?.code||null};
 }
 
 export function buildAgentStepRequest({base,history,strategy}){
  const payload={
   instruction:`Propose the next hypothetical step after the base event below. Strategy hint: ${strategy}.`,
-  base_event:{event_id:base.event_id,event_code:base.event_code,title:base.title,goldstein_scale:base.goldstein_scale,timestamp:base.timestamp,actor1:base.actor1,actor2:base.actor2,location:base.location},
+  base_event:{event_id:base.event_id,provenance:base.provenance||'unknown',event_code:base.event_code,title:base.title,goldstein_scale:base.goldstein_scale,timestamp:base.timestamp,actor1:base.actor1,actor2:base.actor2,location:base.location},
   recent_history:history.slice(-12).map(historySummary)
  };
  return {

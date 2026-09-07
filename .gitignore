@@ -8,3 +8,9 @@ data/
 .pytest_cache/
 .ruff_cache/
 .DS_Store
+!projects/polymarket/web/data/
+!projects/polymarket/web/data/graph.json
+!projects/polymarket/src/data/
+!projects/polymarket/src/data/**
+**/__pycache__/
+*.py[cod]

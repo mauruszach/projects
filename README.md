@@ -1,4 +1,13 @@
-# Temporal Knowledge Graph Engine
+# Projects
+
+A shared website for two interactive research projects:
+
+- **Temporal Knowledge Graph Engine for Geopolitical Event Forecasting** — event relationships and hypothetical strategic payoff matrices.
+- **Polymarket Cross-Market Correlation Graph and Shock Simulator** — market relationships, price histories, and exploratory shock propagation.
+
+The Next.js project chooser is in `web`, with Predictor at `/predictor` and Polymarket at `/polymarket`. Deployment instructions are in [HOSTING-SITE.md](HOSTING-SITE.md). Visitors bring their own Anthropic key for Predictor simulations.
+
+## Temporal Knowledge Graph Engine
 
 Temporal knowledge graph of global geopolitical events, built from GDELT, stored in Neo4j,
 and used to forecast escalation trends. See `CLAUDE.md` for full architecture and phased build plan.

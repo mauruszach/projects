@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* Shared visual language with predictor: cool neutrals, blue accents,
+   compact panels, and monospace instrumentation. Intentionally light-only. */
+:root {
+  color-scheme: light;
+  --page: #f5f7fa;
+  --surface: #ffffff;
+  --ink: #17202d;
+  --ink-2: #536174;
+  --muted: #6d7786;
+  --grid: #e1e5eb;
+  --axis: #c2cbd8;
+  --border: #e1e5eb;
+  --accent: #2167e8;
+  --accent-hover: #185bd0;
+  --pale: #eef4ff;
+  --good: #187849;
+  --critical: #c93e49;
+  --s1: #2167e8;
+  --s2: #d96b35;
+  --s3: #209875;
+  --s4: #b88613;
+  --s5: #c56991;
+  --s6: #4b833f;
+  --s7: #7865bd;
+  --s8: #c93e49;
+  --dim: #a3acb9;
+  --flag: #2167e814;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-grid: var(--grid);
+  --color-axis: var(--axis);
+  --color-good: var(--good);
+  --color-critical: var(--critical);
+  --font-sans: Helvetica, Arial, sans-serif;
+  --font-mono: Helvetica, Arial, sans-serif;
+}
+
+html,
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.prose-notes h1 { font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 0.75rem; }
+.prose-notes h2 { font-size: 1.15rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+.prose-notes h3 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 0.5rem; }
+.prose-notes p { margin: 0.6rem 0; line-height: 1.55; color: var(--ink-2); }
+.prose-notes li { margin: 0.25rem 0 0.25rem 1.25rem; list-style: disc; color: var(--ink-2); line-height: 1.5; }
+.prose-notes ol li { list-style: decimal; }
+.prose-notes code { font-family: var(--font-mono); font-size: 0.85em; background: var(--grid); padding: 0.05em 0.3em; border-radius: 4px; }
+.prose-notes pre { background: var(--grid); padding: 0.75rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; }
+.prose-notes pre code { background: none; padding: 0; }
+.prose-notes table { border-collapse: collapse; margin: 0.75rem 0; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.prose-notes th, .prose-notes td { border-bottom: 1px solid var(--grid); padding: 0.3rem 0.6rem; text-align: left; }
+.prose-notes th { color: var(--muted); font-weight: 500; }
+.prose-notes strong { color: var(--ink); }
+.prose-notes a { color: var(--s1); text-decoration: underline; }
+
+/* Application shell */
+body { margin: 0; font-size: 13px; }
+.app-header { background: var(--surface); border-bottom: 1px solid var(--border); }
+.app-header-inner { min-height: 64px; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 40px; max-width: 1440px; margin: auto; padding: 0 22px; }
+.app-brand { display: block; padding: 12px 0; font-size: 16px; font-weight: 700; letter-spacing: .3px; line-height: 1.4; }
+.app-nav { display: flex; align-self: stretch; gap: 24px; font-size: 12px; color: var(--muted); }
+.app-nav a { display: flex; align-items: center; border-bottom: 2px solid transparent; padding: 12px 0; }
+.app-nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.app-main { width: 100%; max-width: 1440px; margin: auto; flex: 1; padding: 24px 22px; }
+.app-footer { border-top: 1px solid var(--border); background: var(--surface); padding: 12px 22px; color: var(--muted); font-size: 10px; line-height: 1.8; }
+.app-main h1 { font-size: 22px; font-weight: 600; letter-spacing: -.5px; }
+.app-main h2 { color: var(--ink); }
+
+/* Controls share the predictor's compact, blue-accented treatment. */
+button, input, select, textarea { font: inherit; }
+button, a { touch-action: manipulation; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+button, input:not([type='range']):not([type='checkbox']), select { border-radius: 4px; }
+input[type='search'], select { background: #f7f9fc; border: 1px solid var(--border); padding: 7px 9px; }
+input[type='search'] { min-width: 0; max-width: 100%; }
+input[type='checkbox'], input[type='range'] { accent-color: var(--accent); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+label:has(input.sr-only:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+button.rounded { min-height: 30px; }
+button.rounded:hover:not(:disabled) { background: var(--pale); color: var(--accent-hover); border-color: #b9cdf2; }
+button[aria-pressed='true'] { color: var(--accent); background: var(--pale); border-color: #b9cdf2; }
+.primary-button { background: var(--accent); color: white; border: 1px solid var(--accent); }
+button.primary-button:hover:not(:disabled) { background: var(--accent-hover); color: white; }
+
+/* Graph workspace, inspector, and data panels */
+.graph-controls { border-radius: 4px 4px 0 0; gap: 12px 20px; }
+.graph-legend { padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); font-size: 11px; }
+.graph-legend label { padding: 3px 0; }
+.graph-legend .rounded-full { width: 7px; height: 7px; }
+.graph-inspector { line-height: 1.65; }
+.graph-inspector::before { content: 'MARKET INSPECTOR'; display: block; margin: -16px -16px 16px; padding: 14px 16px; border-bottom: 1px solid var(--border); font: 600 10px var(--font-mono); letter-spacing: 1px; color: var(--ink-2); }
+.graph-inspector li { padding-top: 8px; padding-bottom: 6px; }
+.tnum, thead, .recharts-cartesian-axis-tick { font-family: var(--font-mono); }
+thead { font-size: 10px; letter-spacing: .3px; }
+th { padding-top: 9px !important; padding-bottom: 9px !important; }
+tbody td { padding-top: 6px; padding-bottom: 6px; }
+tbody tr:hover { background: var(--pale); }
+figure.card > div:first-child { padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.app-main a.underline { text-decoration-color: var(--axis); text-underline-offset: 3px; }
+.app-main a.underline:hover { color: var(--accent); }
+.app-main > .grid > nav { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+@media (max-width: 640px) {
+  .app-header-inner { padding: 12px 16px 0; gap: 4px 24px; }
+  .app-brand { width: 100%; font-size: 15px; }
+  .app-nav { min-height: 38px; }
+  .app-main { padding: 20px 12px; }
+  .graph-controls > span { flex-wrap: wrap; }
+  .graph-controls input[type='search'] { flex: 1; }
+  .app-footer { padding: 12px 16px; }
+}
+
+/* Keep labels, code, charts, and mathematical notation in the requested family. */
+.katex, .katex * { font-family: Helvetica, Arial, sans-serif !important; }
+.first-use summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+.first-use p { line-height: 1.6; }

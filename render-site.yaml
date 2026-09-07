@@ -1,0 +1,19 @@
+# Select this Blueprint path in Render. Deploy one persistent instance.
+# Backend-only services remain in render.yaml; this file deploys the combined website.
+services:
+  - type: web
+    name: research-projects
+    runtime: docker
+    dockerfilePath: ./Dockerfile.site
+    dockerContext: .
+    healthCheckPath: /api/health
+    numInstances: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      # Optional: add GDELT_API_URL in the dashboard to enable recorded events.
+      # Never set a shared ANTHROPIC_API_KEY for website visitors.
