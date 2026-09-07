@@ -6,15 +6,15 @@
 export const AGENT_STEP_SCHEMA={
  type:'object',
  properties:{
-  actor1_options:{type:'array',items:{type:'string'},minItems:2,maxItems:4},
-  actor2_options:{type:'array',items:{type:'string'},minItems:2,maxItems:4},
-  payoff_matrix:{type:'array',description:'Row i, column j holds [actor1_payoff, actor2_payoff] for (actor1_options[i], actor2_options[j]) on an illustrative -5..5 scale. This is your own strategic estimate, not measured data.',items:{type:'array',items:{type:'array',items:{type:'number'},minItems:2,maxItems:2}}},
+  actor1_options:{type:'array',description:'2-4 plausible next actions for actor1.',items:{type:'string'}},
+  actor2_options:{type:'array',description:'2-4 plausible next actions for actor2.',items:{type:'string'}},
+  payoff_matrix:{type:'array',description:'Row i, column j holds a two-element [actor1_payoff, actor2_payoff] pair for (actor1_options[i], actor2_options[j]) on an illustrative -5..5 scale. This is your own strategic estimate, not measured data.',items:{type:'array',items:{type:'array',items:{type:'number'}}}},
   equilibrium_note:{type:'string',description:'Best-response or equilibrium reasoning drawn from the matrix above. State explicitly if no pure-strategy equilibrium exists.'},
   chosen_actor1_action:{type:'string',description:'Must be one of actor1_options.'},
   chosen_actor2_action:{type:'string',description:'Must be one of actor2_options.'},
   event_title:{type:'string'},
   event_code:{type:'string',description:'A short label such as COOPERATE, ESCALATE, SIGNAL, WITHDRAW.'},
-  goldstein_scale:{type:'number',minimum:-10,maximum:10},
+  goldstein_scale:{type:'number',description:'An illustrative Goldstein-scale estimate for this hypothetical event, from -10 to 10.'},
   rationale:{type:'string',description:'2-4 sentences grounded in the payoff matrix and the supplied history. Must state this is a hypothetical assumption, not a prediction.'}
  },
  required:['actor1_options','actor2_options','payoff_matrix','equilibrium_note','chosen_actor1_action','chosen_actor2_action','event_title','event_code','goldstein_scale','rationale'],
@@ -38,7 +38,11 @@ export function buildAgentStepRequest({base,history,strategy}){
  return {
   messages:[{role:'user',content:JSON.stringify(payload)}],
   system:AGENT_SYSTEM,
-  extra:{thinking:{type:'adaptive'},output_config:{effort:'high',format:{type:'json_schema',schema:AGENT_STEP_SCHEMA}}}
+  // Adaptive thinking alone can use 1500-3000+ tokens on this task; the 2200
+  // default in askClaude leaves too little room for the structured JSON that
+  // follows it and the response gets cut off mid-object (stop_reason
+  // max_tokens). Verified against a live call before landing on 8000.
+  extra:{max_tokens:8000,thinking:{type:'adaptive'},output_config:{effort:'high',format:{type:'json_schema',schema:AGENT_STEP_SCHEMA}}}
  };
 }
 
