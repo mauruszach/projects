@@ -6,3 +6,6 @@
 
 /* Autonomous strategy agent payoff matrix, shown in the inspector. */
 .payoff-wrap{overflow-x:auto;margin:14px 0}.payoff-table{border-collapse:collapse;width:100%;font-size:10px}.payoff-table th,.payoff-table td{border:1px solid #e5eaf1;padding:6px 8px;text-align:center;white-space:nowrap}.payoff-table thead th{background:#f7f9fd;color:#647289;font:9px 'IBM Plex Mono',monospace}.payoff-table tbody th{background:#f7f9fd;color:#647289;font:9px 'IBM Plex Mono',monospace;text-align:left}.payoff-table td{color:#4d5c72;font:10px 'IBM Plex Mono',monospace}.payoff-table td.chosen-cell{background:#eaf1ff;color:#1a5ed5;font-weight:600;box-shadow:inset 0 0 0 1px #93b4f2}
+
+/* Always-visible simulation status banner, explaining the mechanism and live progress. */
+.sim-banner{padding:8px 20px;font-size:10.5px;line-height:1.6;color:#5c6b80;background:#f7f9fd;border-bottom:1px solid var(--line)}.sim-banner-active{color:#1a5ed5;background:#eaf1ff;animation:sim-pulse 1.6s ease-in-out infinite}@keyframes sim-pulse{0%,100%{background:#eaf1ff}50%{background:#d8e6fd}}@media(prefers-reduced-motion:reduce){.sim-banner-active{animation:none}}
