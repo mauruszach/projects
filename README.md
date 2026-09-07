@@ -1,11 +1,13 @@
 # Projects
 
-A shared website for two interactive research projects:
+A static GitHub Pages showcase for two research projects, with instructions for running the interactive environments on your own computer. The public website runs no servers, data jobs or paid model calls.
+
+**[Project showcase](https://mauruszach.github.io/projects/)** · [Local setup instructions](https://mauruszach.github.io/projects/#setup)
 
 - **Temporal Knowledge Graph Engine for Geopolitical Event Forecasting** — event relationships and hypothetical strategic payoff matrices.
 - **Polymarket Cross-Market Correlation Graph and Shock Simulator** — market relationships, price histories, and exploratory shock propagation.
 
-The Next.js project chooser is in `web`, with Predictor at `/predictor` and Polymarket at `/polymarket`. Deployment instructions are in [HOSTING-SITE.md](HOSTING-SITE.md). Visitors bring their own Anthropic key for Predictor simulations.
+The public site is plain HTML/CSS in `docs`, published by `.github/workflows/pages.yml`. In repository Settings → Pages, select GitHub Actions as the publishing source. The Next.js apps remain available locally in `web` and `projects/polymarket/web`; visitors bring their own Anthropic key only if they run Predictor simulations locally. [HOSTING-SITE.md](HOSTING-SITE.md) preserves the optional container-hosting instructions, which are not required for GitHub Pages.
 
 ## Temporal Knowledge Graph Engine
 
